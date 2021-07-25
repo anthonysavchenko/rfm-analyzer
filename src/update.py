@@ -3,31 +3,32 @@ import db
 import poster
 
 
-def clearPhone(phone):
-    return phone.replace("+", "").replace("-", "").replace(" ", "")
-
-
-def updateWeekInfo(since, till):
-    apiSince = poster.getApiDateFormat(since)
-    apiTill = poster.getApiDateFormat(till)
-    dbSince = db.getDbDateFormat(since)
-    dbTill = db.getDbDateFormat(till)
-    customerVisits = poster.getCustomerVisits(apiSince, apiTill)
-    for customerVisit in customerVisits:
-        phone = clearPhone(customerVisit["phone"])
-        if len(phone) == 0:
-            continue
+def loadVisit(sinceDate, tillDate, phone, customerName, visits, payed):
+    if len(phone) > 0:
         customerId = db.selectCustomer(phone)
         if customerId == None:
-            customerName = customerVisit["firstname"] + " " + customerVisit["lastname"]
             customerId = db.insertCustomer(customerName, phone)
-        weekId = db.selectWeek(customerId, dbSince)
-        visits, = customerVisit["clients"],
-        payed = float(customerVisit["sum"]) / 100
+        weekId = db.selectWeek(customerId, sinceDate)
         if weekId == None:
-            db.insertWeek(customerId, dbSince, dbTill, visits, payed)
+            db.insertWeek(customerId, sinceDate, tillDate, visits, payed)
         else:
             db.updateWeek(weekId, visits, payed)
+
+
+def updateWeekInfo(sinceDate, tillDate):
+    apiSince = poster.getApiDateFormat(sinceDate)
+    apiTill = poster.getApiDateFormat(tillDate)
+    dbSince = db.getDbDateFormat(sinceDate)
+    dbTill = db.getDbDateFormat(tillDate)
+    visits = poster.getVisits(apiSince, apiTill)
+    tuple(loadVisit(
+        dbSince,
+        dbTill,
+        phone = visit["phone"],
+        customerName = visit["customerName"],
+        visits = visit["visits"],
+        payed = visit["payed"]
+    ) for visit in visits)
 
 
 def updateCurrentWeekInfo():
@@ -48,5 +49,7 @@ def updateWeeksInfoSinceTill(sinceDate, tillDate):
 
 #updateWeeksInfoSinceTill(dates.toDate(2021, 1, 4), dates.toDate(2021, 3, 14))
 #updateWeeksInfoSinceTill(dates.toDate(2021, 3, 15), dates.toDate(2021, 5, 23))
-updateWeeksInfoSinceTill(dates.toDate(2021, 5, 24), dates.toDate(2021, 7, 8))
+#updateWeeksInfoSinceTill(dates.toDate(2021, 5, 24), dates.toDate(2021, 7, 8))
+
+updateWeeksInfoSinceTill(dates.toDate(2021, 7, 8), dates.toDate(2021, 7, 25))
 print("done")
