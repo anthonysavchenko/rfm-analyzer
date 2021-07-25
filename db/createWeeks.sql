@@ -3,7 +3,7 @@ CREATE TABLE "Weeks" (
 	"CustomerId"	INTEGER NOT NULL,
 	"Since"	TEXT NOT NULL,
 	"Till"	TEXT NOT NULL,
-"	Visits"	NUMERIC NOT NULL DEFAULT 0,
+	"Visits"	NUMERIC NOT NULL DEFAULT 0,
 	"Payed"	REAL NOT NULL DEFAULT 0,
 	FOREIGN KEY("CustomerId") REFERENCES "Customers"("Id")
 )

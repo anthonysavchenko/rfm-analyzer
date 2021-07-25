@@ -3,21 +3,26 @@ SELECT
     --t1.CustomerId,
 	t1.Phone,
 	t1.CustomerName,
+	t1.WeeksSinceFirstPay,
 	t1.WeeksSinceLastPay,
 	t1.PayedWeeks,
 	t1.PayedTotal,
-	ROUND((t1.WeeksSinceFirstMonday - t1.WeeksSinceLastPay) / PayedWeeks, 2) AS Ntc,
+	ROUND((t1.WeeksSinceFirstPay - t1.WeeksSinceLastPay) / (PayedWeeks - 1), 2) AS Ntc,
 	CASE
 		WHEN
-			t1.WeeksSinceLastPay > ROUND((t1.WeeksSinceFirstMonday - t1.WeeksSinceLastPay) / PayedWeeks, 2) * 3
+			PayedWeeks <= 1
+		THEN
+			'5 - Unknown'
+		WHEN
+			t1.WeeksSinceLastPay > ROUND((t1.WeeksSinceFirstPay - t1.WeeksSinceLastPay) / (PayedWeeks - 1), 2) * 3
 		THEN
 			'4 - Black'
 		WHEN
-			t1.WeeksSinceLastPay > ROUND((t1.WeeksSinceFirstMonday - t1.WeeksSinceLastPay) / PayedWeeks, 2) * 2
+			t1.WeeksSinceLastPay > ROUND((t1.WeeksSinceFirstPay - t1.WeeksSinceLastPay) / (PayedWeeks - 1), 2) * 2
 		THEN
 			'1 - Red'
 		WHEN
-			t1.WeeksSinceLastPay > ROUND((t1.WeeksSinceFirstMonday - t1.WeeksSinceLastPay) / PayedWeeks, 2)
+			t1.WeeksSinceLastPay > ROUND((t1.WeeksSinceFirstPay - t1.WeeksSinceLastPay) / (PayedWeeks - 1), 2)
 		THEN
 			'2 - Yellow'
 		ELSE
@@ -31,6 +36,7 @@ FROM
 		c.CustomerName,
 		CAST((JULIANDAY('2021-07-05') - JULIANDAY('2021-01-04')) / 7 AS INTEGER) AS WeeksSinceFirstMonday, --Current week monday param AND First monday param
 		CAST((JULIANDAY('2021-07-05') - JULIANDAY(MAX(w.Since))) / 7 AS INTEGER) AS WeeksSinceLastPay, --Current week monday param
+		CAST((JULIANDAY('2021-07-05') - JULIANDAY(MIN(w.Since))) / 7 AS INTEGER) AS WeeksSinceFirstPay, --Current week monday param
         COUNT(w.ID) AS PayedWeeks,
         SUM(w.Payed) AS PayedTotal
     FROM
@@ -46,3 +52,4 @@ FROM
 ORDER BY
 	Sector,
 	PayedTotal DESC;
+    
