@@ -70,5 +70,5 @@ def updateWeeksInfoSinceTill(updateMethod, sinceDate, tillDate):
 
 #updateWeeksInfoSinceTill(updateWeekInfoPoster, dates.toDate(2021, 7, 8), dates.toDate(2021, 7, 25))
 
-updateWeeksInfoSinceTill(updateWeekInfoYclients, dates.toDate(2021, 7, 19), dates.toDate(2021, 7, 25))
+updateWeeksInfoSinceTill(updateWeekInfoYclients, dates.toDate(2021, 1, 4), dates.toDate(2021, 7, 27))
 print("done")

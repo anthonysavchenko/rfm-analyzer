@@ -7,6 +7,7 @@
 
 
 from config import yclientsCompanyId, yclientsBearerToken, yclientsUserToken
+from ratelimit import limits, sleep_and_retry
 import requests
 
 
@@ -36,10 +37,15 @@ def clearPhone(phone):
     return phone.replace("+", "")
 
 
+@sleep_and_retry
+@limits(calls = 5, period = 1)
+@limits(calls = 200, period = 60)
 def requestVisits(sinceDate, tillDate, count, page):
     """
     Requests financial transactions list from the API.
     Endpoint: https://api.yclients.com/api/v1/transactions/{yclientsCompanyId}
+    Runs with throttling because of API developer requirement. Limited to 200 calls per minute
+    (60 seconds) or to 5 calls per second.
 
     Parameters:
     sinceDate (date): start of the period.
@@ -67,22 +73,30 @@ def requestVisits(sinceDate, tillDate, count, page):
 
 
 def extractVisits(sinceDate, tillDate):
-    count = 2
+    count = 50
     page = 1
     extracted = []
-    while len(extracted) == 0 or len(requested) == count:
+    while True:
         requested = requestVisits(sinceDate, tillDate, count, page)
         extracted += requested
+        if len(requested) < count:
+            break
         page += 1
     return extracted
 
 
 def clearVisit(visit):
     return {
-        "phone": clearPhone(visit["client"]["phone"]),
-        "customerName": visit["client"]["name"],
+        "phone": clearPhone(visit["client"]["phone"])
+            if "client" in visit and "phone" in visit["client"]
+            else "",
+        "customerName": visit["client"]["name"]
+            if "client" in visit and "name" in visit["client"]
+            else "",
         "visits": 1,
         "payed": float(visit["amount"])
+            if "amount" in visit
+            else 0
     }
 
 

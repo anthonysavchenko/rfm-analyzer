@@ -1,4 +1,5 @@
 from config import posterApiKey
+from ratelimit import limits, sleep_and_retry
 import requests
 
 
@@ -10,6 +11,8 @@ def clearPhone(phone):
     return phone.replace("+", "").replace("-", "").replace(" ", "")
 
 
+@sleep_and_retry
+@limits(calls = 15, period = 60)
 def requestVisits(sinceDate, tillDate):
     url = "https://joinposter.com/api/dash.getAnalytics"
     params = {
@@ -28,10 +31,18 @@ def extractVisits(sinceDate, tillDate):
 
 def clearVisit(visit):
     return {
-        "phone": clearPhone(visit["phone"]),
-        "customerName": visit["firstname"] + " " + visit["lastname"],
-        "visits": visit["clients"],
+        "phone": clearPhone(visit["phone"])
+            if "phone" in visit
+            else "",
+        "customerName": visit["firstname"] + " " + visit["lastname"]
+            if "firstname" in visit and "lastname" in visit
+            else "",
+        "visits": visit["clients"]
+            if "clients" in visit
+            else 0,
         "payed": float(visit["sum"]) / 100
+            if "sum" in visit
+            else 0
     }
 
 
