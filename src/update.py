@@ -1,6 +1,7 @@
 import dates
 import db
 import poster
+import yclients
 
 
 def loadVisit(sinceDate, tillDate, phone, customerName, visits, payed):
@@ -15,12 +16,12 @@ def loadVisit(sinceDate, tillDate, phone, customerName, visits, payed):
             db.updateWeek(weekId, visits, payed)
 
 
-def updateWeekInfo(sinceDate, tillDate):
+def updateWeekInfoPoster(sinceDate, tillDate):
     apiSince = poster.getApiDateFormat(sinceDate)
     apiTill = poster.getApiDateFormat(tillDate)
     dbSince = db.getDbDateFormat(sinceDate)
     dbTill = db.getDbDateFormat(tillDate)
-    visits = poster.getVisits(apiSince, apiTill)
+    visits = poster.extractAndTransformVisits(apiSince, apiTill)
     tuple(loadVisit(
         dbSince,
         dbTill,
@@ -31,25 +32,43 @@ def updateWeekInfo(sinceDate, tillDate):
     ) for visit in visits)
 
 
-def updateCurrentWeekInfo():
+def updateWeekInfoYclients(sinceDate, tillDate):
+    apiSince = yclients.getApiDateFormat(sinceDate)
+    apiTill = yclients.getApiDateFormat(tillDate)
+    dbSince = db.getDbDateFormat(sinceDate)
+    dbTill = db.getDbDateFormat(tillDate)
+    visits = yclients.extractAndTransformVisits(apiSince, apiTill)
+    tuple(loadVisit(
+        dbSince,
+        dbTill,
+        phone = visit["phone"],
+        customerName = visit["customerName"],
+        visits = visit["visits"],
+        payed = visit["payed"]
+    ) for visit in visits)
+
+
+def updateCurrentWeekInfo(updateMethod):
     week = dates.getWeek()
-    updateWeekInfo(*week)
+    updateMethod(*week)
 
 
-def updateWeeksInfoAll():
-    tuple(updateWeekInfo(*week) for week in dates.getWeeks())
+def updateWeeksInfoAll(updateMethod):
+    tuple(updateMethod(*week) for week in dates.getWeeks())
 
 
-def updateWeeksInfoSince(sinceDate):
-    tuple(updateWeekInfo(*week) for week in dates.getWeeks(sinceDate = sinceDate))
+def updateWeeksInfoSince(updateMethod, sinceDate):
+    tuple(updateMethod(*week) for week in dates.getWeeks(sinceDate = sinceDate))
 
 
-def updateWeeksInfoSinceTill(sinceDate, tillDate):
-    tuple(updateWeekInfo(*week) for week in dates.getWeeks(sinceDate, tillDate))
+def updateWeeksInfoSinceTill(updateMethod, sinceDate, tillDate):
+    tuple(updateMethod(*week) for week in dates.getWeeks(sinceDate, tillDate))
 
-#updateWeeksInfoSinceTill(dates.toDate(2021, 1, 4), dates.toDate(2021, 3, 14))
-#updateWeeksInfoSinceTill(dates.toDate(2021, 3, 15), dates.toDate(2021, 5, 23))
-#updateWeeksInfoSinceTill(dates.toDate(2021, 5, 24), dates.toDate(2021, 7, 8))
+#updateWeeksInfoSinceTill(updateWeekInfoPoster, dates.toDate(2021, 1, 4), dates.toDate(2021, 3, 14))
+#updateWeeksInfoSinceTill(updateWeekInfoPoster, dates.toDate(2021, 3, 15), dates.toDate(2021, 5, 23))
+#updateWeeksInfoSinceTill(updateWeekInfoPoster, dates.toDate(2021, 5, 24), dates.toDate(2021, 7, 8))
 
-updateWeeksInfoSinceTill(dates.toDate(2021, 7, 8), dates.toDate(2021, 7, 25))
+#updateWeeksInfoSinceTill(updateWeekInfoPoster, dates.toDate(2021, 7, 8), dates.toDate(2021, 7, 25))
+
+updateWeeksInfoSinceTill(updateWeekInfoYclients, dates.toDate(2021, 7, 19), dates.toDate(2021, 7, 25))
 print("done")

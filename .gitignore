@@ -1,3 +1,3 @@
 src/__pycache__
 src/config.py
-db/rfmanalyzer.db
+db/*.db
