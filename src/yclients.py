@@ -6,7 +6,7 @@
 """
 
 
-from config import yclientsCompanyId, yclientsBearerToken, yclientsUserToken
+from config import yclients_company_id, yclients_bearer_token, yclients_user_token
 from ratelimit import limits, sleep_and_retry
 import requests
 
@@ -56,9 +56,9 @@ def requestVisits(sinceDate, tillDate, count, page):
     Return:
     str: phone string without extra characters.
     """
-    url = f"https://api.yclients.com/api/v1/transactions/{yclientsCompanyId}"
+    url = f"https://api.yclients.com/api/v1/records/{yclients_company_id}"
     headers = {
-        "Authorization": f"Bearer {yclientsBearerToken}, User {yclientsUserToken}",
+        "Authorization": f"Bearer {yclients_bearer_token}, User {yclients_user_token}",
         "Accept": "application/vnd.yclients.v2+json",
         "Content-Type": "application/json"
     }
@@ -86,17 +86,20 @@ def extractVisits(sinceDate, tillDate):
 
 
 def clearVisit(visit):
+    phone = ""
+    if "client" in visit and visit["client"] != None and "phone" in visit["client"]:
+        phone = clearPhone(visit["client"]["phone"])
+    customerName = ""
+    if "client" in visit and visit["client"] != None and "name" in visit["client"]:
+        customerName = visit["client"]["name"]
+    payed = ()
+    if "services" in visit and isinstance(visit["services"], list):
+        payed = tuple(service["cost"] for service in visit["services"] if "cost" in service)
     return {
-        "phone": clearPhone(visit["client"]["phone"])
-            if "client" in visit and "phone" in visit["client"]
-            else "",
-        "customerName": visit["client"]["name"]
-            if "client" in visit and "name" in visit["client"]
-            else "",
+        "phone": phone,
+        "customerName": customerName,
         "visits": 1,
-        "payed": float(visit["amount"])
-            if "amount" in visit
-            else 0
+        "payed": float(sum(payed)),
     }
 
 
@@ -119,6 +122,8 @@ def transformVisits(visits):
     return groupVisits(cleared)
 
     
-def extractAndTransformVisits(sinceDate, tillDate):
-    extracted = extractVisits(sinceDate, tillDate)
+def extract_and_transform_visits(sinceDate, tillDate):
+    apiSince = getApiDateFormat(sinceDate)
+    apiTill = getApiDateFormat(tillDate)
+    extracted = extractVisits(apiSince, apiTill)
     return transformVisits(extracted)

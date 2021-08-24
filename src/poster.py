@@ -1,4 +1,4 @@
-from config import posterApiKey
+from config import poster_api_key
 from ratelimit import limits, sleep_and_retry
 import requests
 
@@ -16,7 +16,7 @@ def clearPhone(phone):
 def requestVisits(sinceDate, tillDate):
     url = "https://joinposter.com/api/dash.getAnalytics"
     params = {
-        "token": posterApiKey,
+        "token": poster_api_key,
         "dateFrom": sinceDate,
         "dateTo": tillDate,
         "type": "clients"
@@ -50,6 +50,8 @@ def transformVisits(visits):
     return tuple(clearVisit(visit) for visit in visits)
 
 
-def extractAndTransformVisits(sinceDate, tillDate):
-    extracted = extractVisits(sinceDate, tillDate)
+def extract_and_transform_visits(since_date, till_date):
+    apiSince = getApiDateFormat(since_date)
+    apiTill = getApiDateFormat(till_date)
+    extracted = extractVisits(apiSince, apiTill)
     return transformVisits(extracted)
