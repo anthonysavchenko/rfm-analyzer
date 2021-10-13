@@ -132,6 +132,12 @@ def update_weeks_info(api_method, since_date, till_date):
 # update_weeks_info(update_week_info_yclients, dates.to_date(2021, 1, 4), dates.to_date(2021, 7, 27))
 #
 # 24.08. Load Yclients to new database again. Records API used.
-update_weeks_info(update_week_info_yclients, dates.to_date(2021, 1, 4), dates.to_date(2021, 8, 24))
+# update_weeks_info(update_week_info_yclients, dates.to_date(2021, 1, 4), dates.to_date(2021, 8, 24))
+#
+# 13.10. Reload Poster data from the begining of the year.
+update_weeks_info(
+    update_week_info_poster,
+    dates.to_date(2021, 1, 4),
+    dates.to_date(2021, 10, 13))
 
 print("done")
