@@ -37,7 +37,7 @@ def clearVisit(visit):
         "customerName": visit["firstname"] + " " + visit["lastname"]
             if "firstname" in visit and "lastname" in visit
             else "",
-        "visits": visit["clients"]
+        "visits": int(visit["clients"])
             if "clients" in visit
             else 0,
         "payed": float(visit["sum"]) / 100
