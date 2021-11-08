@@ -135,9 +135,16 @@ def update_weeks_info(api_method, since_date, till_date):
 # update_weeks_info(update_week_info_yclients, dates.to_date(2021, 1, 4), dates.to_date(2021, 8, 24))
 #
 # 13.10. Reload Poster data from the begining of the year.
+# update_weeks_info(
+#     update_week_info_poster,
+#     dates.to_date(2021, 1, 4),
+#     dates.to_date(2021, 10, 13)
+# )
+# 08.11. Update Poster data.
 update_weeks_info(
     update_week_info_poster,
-    dates.to_date(2021, 1, 4),
-    dates.to_date(2021, 10, 13))
+    dates.to_date(2021, 10, 13),
+    dates.to_date(2021, 11, 8)
+)
 
 print("done")
