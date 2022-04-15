@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Вход — {% endblock %}
+
+{% block header %}RFM-анализатор{% endblock %}
+
+{% block content %}
+
+{% if form.errors %}
+<div class="error">Неправильный логин или пароль</div>
+{% endif %}
+
+<form class="block" method="post" action="{% url 'login' %}">
+  {% csrf_token %}
+  <div>Логин</div>
+  <div>{{ form.username }}</div>
+  <div>Пароль</div>
+  <div>{{ form.password }}</div>
+  <input class="button" type="submit" value="Войти">
+  <input type="hidden" name="next" value="{{ next }}">
+</form>
+
+{% endblock %}

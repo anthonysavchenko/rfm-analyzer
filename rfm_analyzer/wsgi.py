@@ -1,5 +1,5 @@
 """
-WSGI config for rfm_analyser project.
+WSGI config for rfm_analyzer project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rfm_analyser.settings.production')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rfm_analyzer.settings.production')
 
 application = get_wsgi_application()

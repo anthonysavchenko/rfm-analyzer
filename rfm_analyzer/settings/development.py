@@ -1,4 +1,4 @@
-from rfm_analyser.settings.production import *
+from rfm_analyzer.settings.production import *
 
 DEBUG = True
 

@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+  }
+  
+html {
+  background-color: wheat;
+  font-family: "Ubuntu", sans-serif;
+}
+
+.container {
+  width: 600px;
+  margin: auto;
+  padding: 20px 40px;
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.logo {
+  text-decoration: none;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  margin-bottom: 25px;
+  color: tomato;
+}
+
+.block {
+  margin-top: 50px;
+  width: 100%;
+}
+
+.block > div {
+  margin: 0 auto 10px;
+}
+
+input[type="text"], input[type="password"], input[type="date"] {
+  border: 2px solid black;
+  border-radius: 4px;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.button {
+  display: block;
+  width: fit-content;
+  margin: 15px auto 0;
+  padding: 15px 30px;
+  color: white;
+  background-color: teal;
+  border: 4px solid black;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: seagreen;
+}
