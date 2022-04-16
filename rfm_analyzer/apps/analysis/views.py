@@ -1,16 +1,16 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotFound
+from django.http import HttpRequest, HttpResponseNotFound
 from django.shortcuts import render
+
+from rfm_analyzer.apps.yclients.services import get_last_update_message
 
 from .forms import DownloadForm
 
 
 @login_required
-def index(request):
-    # last_update = LastUpdate.objects.filter(pk=request.user.id).first()
-    update_message = 'Обновление еще ни разу не выполнялось' #if last_update == None else f'Последнее обновление {last_update.last_update:%d.%m.%y %H:%M}'
+def index(request: HttpRequest):
     return render(request, 'analysis.html',
-                  {'update_message': update_message,
+                  {'update_message': get_last_update_message(request.user.id),
                    'download_form': DownloadForm()})
 
 

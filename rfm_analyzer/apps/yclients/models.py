@@ -17,6 +17,7 @@ class Config(models.Model):
     company_id = models.PositiveIntegerField()
     bearer_token = models.CharField(max_length=255)
     user_token = models.CharField(max_length=255)
+    last_update = models.DateTimeField(null=True)
 
     def __str__(self) -> str:
         return str(self.company_id)

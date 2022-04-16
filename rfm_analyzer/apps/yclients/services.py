@@ -10,6 +10,8 @@ from datetime import date
 from ratelimit import limits, sleep_and_retry
 import requests
 
+from rfm_analyzer.apps.yclients.models import Config
+
 
 def _get_api_formated_date(target_date: date) -> str:
     """
@@ -134,3 +136,11 @@ def extract_and_transform_visits(since: date, till: date, company_id: str,
     extracted = _extract_visits(
         since_api_str, till_api_str, company_id, bearer_token, user_token)
     return _transform_visits(extracted)
+
+
+def get_last_update_message(user_id: int) -> str:
+    config = Config.objects.filter(pk=user_id).first()
+    last_update = config.last_update if config is not None else None
+    return 'Обновление еще ни разу не выполнялось' \
+        if last_update is None \
+        else f'Последнее обновление {last_update:%d.%m.%y %H:%M}'

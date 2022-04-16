@@ -9,7 +9,7 @@ from . models import Config
 class ConfigAdmin(admin.ModelAdmin):
     """ YClients connection configuration """
 
-    list_display = ['user_name', 'user_email', 'company_id',
+    list_display = ['user_name', 'user_email', 'last_update', 'company_id',
                     'bearer_token', 'user_token']
     form = ConfigAdminForm
 

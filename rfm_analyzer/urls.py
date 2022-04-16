@@ -22,5 +22,5 @@ urlpatterns = [
     path('debug/', include('debug_toolbar.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('rfm_analyzer.apps.accounts.urls')),
-    path('analysis/', include('analysis.urls')),
+    path('analysis/', include('rfm_analyzer.apps.analysis.urls')),
 ]
