@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rfm_analyzer.apps.accounts',
-    'rfm_analyzer.apps.yclients_config',
+    'rfm_analyzer.apps.yclients',
 ]
 
 MIDDLEWARE = [

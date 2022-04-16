@@ -6,7 +6,7 @@ class Config(models.Model):
     """ YClients connection configuration """
 
     class Meta:
-        verbose_name = 'Configuration'
+        verbose_name = 'Connection configuration'
 
     user = models.OneToOneField(
         User,

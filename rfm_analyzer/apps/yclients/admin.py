@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from rfm_analyzer.apps.yclients.forms import ConfigAdminForm
+
 from . models import Config
 
 
@@ -7,11 +9,9 @@ from . models import Config
 class ConfigAdmin(admin.ModelAdmin):
     """ YClients connection configuration """
 
-    class Meta:
-        verbose_name = 'Some other name'
-
     list_display = ['user_name', 'user_email', 'company_id',
                     'bearer_token', 'user_token']
+    form = ConfigAdminForm
 
     def user_name(self, config):
         return config.user.username
