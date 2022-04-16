@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block header %}RFM-анализ{% endblock %}
+
+{% block content %}
+  <div class="block">
+    <div>{{ update_message }}</div>
+    <a class="button" href="{% url 'analysis.update' %}">Обновить</a>
+  </div>
+
+  <form class="block" method="post" action="{% url 'analysis.download' %}">
+    {% csrf_token %}
+    <div>Период</div>
+    <div>{{ download_form.since }} — {{ download_form.till }}</div>
+    <input class="button" type="submit" value="Скачать" />
+  </form>
+
+  <div class="block">
+    <a class="button" href="{% url 'logout' %}">Выйти</a>
+  </div>
+{% endblock %}
