@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rfm_analyzer.apps.accounts',
     'rfm_analyzer.apps.yclients',
     'rfm_analyzer.apps.analysis',
+    'rfm_analyzer.apps.background_task',
 ]
 
 MIDDLEWARE = [
