@@ -1,8 +1,7 @@
 from django.contrib import admin
 
 from rfm_analyzer.apps.yclients.forms import ConfigAdminForm
-
-from . models import Config
+from rfm_analyzer.apps.yclients.models import Config
 
 
 @admin.register(Config)

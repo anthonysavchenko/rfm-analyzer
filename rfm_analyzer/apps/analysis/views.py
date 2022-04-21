@@ -2,21 +2,32 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponseNotFound
 from django.shortcuts import render
 
-from rfm_analyzer.apps.yclients.services import get_last_update_message
+from rfm_analyzer.apps.background_task.services import try_start_background_task
+from rfm_analyzer.apps.yclients.services import get_last_update
 
 from .forms import DownloadForm
+from .services.update import update as update_data
 
 
 @login_required
 def index(request: HttpRequest):
+    last_update = get_last_update(request.user.id)
+    update_message = 'Обновление еще ни разу не выполнялось' \
+        if last_update is None \
+        else f'Последнее обновление {last_update:%d.%m.%y %H:%M}'
     return render(request, 'analysis.html',
-                  {'update_message': get_last_update_message(request.user.id),
+                  {'update_message': update_message,
                    'download_form': DownloadForm()})
 
 
 @login_required
 def update(request):
-    update_message = 'Обновление запущено...' # if try_start_background_task(request.user.id) else 'Сервер занят, повторите запрос через 10 минут.'
+    update_message = 'Обновление запущено...' \
+        if try_start_background_task(
+            lambda: update_data(request.user.yclients_config),
+            request.user.id
+        ) \
+        else 'Сервер занят, повторите запрос через 5-10 минут.'
     return render(request, 'analysis.html',
                   {'update_message': update_message,
                    'download_form': DownloadForm()})
@@ -28,5 +39,5 @@ def download(request):
         return HttpResponseNotFound()
     form = DownloadForm(request.POST)
     if not form.is_valid():
-        return render(request, 'index.html', {'download_form': form})
+        return render(request, 'analysis.html', {'download_form': form})
 

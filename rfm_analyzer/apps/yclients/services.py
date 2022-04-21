@@ -6,9 +6,10 @@
 """
 
 
-from datetime import date
+from datetime import date, datetime
+
 from ratelimit import limits, sleep_and_retry
-import requests
+from requests import get as send_get_request
 
 from rfm_analyzer.apps.yclients.models import Config
 
@@ -16,78 +17,54 @@ from rfm_analyzer.apps.yclients.models import Config
 def _get_api_formated_date(target_date: date) -> str:
     """
     Returns date as string in format used by the API.
-
-    Parameters:
-    targetDate (date): target date.
-
-    Return:
-    str: date formatted as string.
     """
     return target_date.strftime("%Y-%m-%d")
-
-
-def _clear_phone(phone):
-    """
-    Removes extra characters from the phone string used by the API.
-
-    Parameters:
-    phone (str): target phone string.
-
-    Return:
-    str: phone string without extra characters.
-    """
-    return phone.replace("+", "")
 
 
 @sleep_and_retry
 @limits(calls=5, period=1)
 @limits(calls=200, period=60)
-def _request_visits(since: str, till: str, company_id: str, bearer_token: str,
-                   user_token: str, count: int, page: int):
+def _request_visits(since: date, till: date, config: Config, count: int, page: int):
     """
     Requests financial transactions list from the API.
     Endpoint: https://api.yclients.com/api/v1/transactions/{yclientsCompanyId}
     Runs with throttling because of API developer requirement. Limited
     to 200 calls per minute (60 seconds) or to 5 calls per second.
-
-    Parameters:
-    sinceDate (date): start of the period.
-    tillDate (date): end of the period.
-    count (int): transactions amount on the page. Max 50.
-    page (int): page number in result list.
-
-    Return:
-    str: phone string without extra characters.
     """
-    url = f"https://api.yclients.com/api/v1/records/{company_id}"
+    url = f"https://api.yclients.com/api/v1/records/{config.company_id}"
     headers = {
-        "Authorization": f"Bearer {bearer_token}, User {user_token}",
+        "Authorization": f"Bearer {config.bearer_token}, User {config.user_token}",
         "Accept": "application/vnd.yclients.v2+json",
         "Content-Type": "application/json"
     }
     params = {
-        "start_date": since,
-        "end_date": till,
+        "start_date": _get_api_formated_date(since),
+        "end_date": _get_api_formated_date(till),
         "page": page,
         "count": count
     }
-    response = requests.get(url, headers=headers, params=params)
+    response = send_get_request(url, headers=headers, params=params)
     return tuple(response.json()["data"])
 
 
-def _extract_visits(since: str, till: str, company_id: str, bearer_token: str,
-                   user_token: str):
+def _extract_visits(since: date, till: date, config: Config):
     count = 50
     page = 1
     extracted = []
     while True:
-        requested = _request_visits(since, till, company_id, bearer_token,
-                                   user_token, count, page)
+        requested = _request_visits(since, till, config, count, page)
         extracted += requested
         if len(requested) < count:
             break
         page += 1
     return extracted
+
+
+def _clear_phone(phone):
+    """
+    Removes extra characters from the phone string used by the API.
+    """
+    return phone.replace("+", "")
 
 
 def _clear_visit(visit):
@@ -129,18 +106,15 @@ def _transform_visits(visits):
     return _group_visits(cleared)
 
 
-def extract_and_transform_visits(since: date, till: date, company_id: str,
-                                 bearer_token: str, user_token: str):
-    since_api_str = _get_api_formated_date(since)
-    till_api_str = _get_api_formated_date(till)
-    extracted = _extract_visits(
-        since_api_str, till_api_str, company_id, bearer_token, user_token)
+def extract_and_transform_visits(since: date, till: date, config: Config):
+    extracted = _extract_visits(since, till, config)
     return _transform_visits(extracted)
 
 
-def get_last_update_message(user_id: int) -> str:
+def get_last_update(user_id: int) -> datetime | None:
     config = Config.objects.filter(pk=user_id).first()
-    last_update = config.last_update if config is not None else None
-    return 'Обновление еще ни разу не выполнялось' \
-        if last_update is None \
-        else f'Последнее обновление {last_update:%d.%m.%y %H:%M}'
+    return config.last_update if config is not None else None
+
+
+def set_last_update(user_id: int, now: datetime) -> None:
+    Config.objects.update_or_create(pk=user_id, defaults={'last_update': now})
