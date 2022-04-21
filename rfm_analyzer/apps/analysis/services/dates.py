@@ -1,5 +1,7 @@
 from os import getenv
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+
+from django.utils import timezone
 
 
 def get_first_monday():
@@ -27,7 +29,7 @@ def get_week_number(target_date):
     return week_number + 1 if delta.days % 7 > 0 else week_number
 
 
-def get_weeks(since=get_first_monday(), till=date.today()):
+def get_weeks(since=get_first_monday(), till=timezone.now().date()):
     """
     Returns sequence of weeks which includes since_date and till_date.
     Each week is returned in form of monday date and sunday date, exept
@@ -38,7 +40,7 @@ def get_weeks(since=get_first_monday(), till=date.today()):
     tuple((date, date)): weeks tuple. Empty tuple in case of dates are
     earler than first monday or in case of other incorrect values.
     """
-    today = date.today()
+    today = timezone.now().date()
     yesterday = today - timedelta(days=1)
     till = yesterday if (till >= today) else till
     since_week_number = get_week_number(since)

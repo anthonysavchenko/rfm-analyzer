@@ -1,20 +1,20 @@
 from django.db.models import Count
+from django.utils import timezone
 
 from rfm_analyzer.apps.analysis.models import Customer, Week
-from rfm_analyzer.apps.yclients.services import extract_and_transform_visits \
-    as yclients_extract_and_transform_visits
-
-from .dates import get_weeks
+from rfm_analyzer.apps.yclients.services import \
+    extract_and_transform_visits, set_last_update
+from rfm_analyzer.apps.analysis.services.dates import get_weeks
 
 
 def _create_new_week(since, till, phone, customer_name, visits, payed, user_id):
     """
     Saves Week and Customer (if it is not exists) to the database.
     """
-    customer, = Customer.objects.get_or_create(
+    customer = Customer.objects.get_or_create(
         phone=phone,
         defaults={'customer_name': customer_name, 'user_id': user_id}
-    )
+    )[0]
     Week.objects.create(
         customer_id=customer.pk,
         since=since,
@@ -30,7 +30,7 @@ def _delete_temporary_data(since):
     """
     Week.objects.filter(since=since).delete()
     Customer.objects \
-        .annotate(week_count = Count('week')) \
+        .annotate(week_count=Count('week')) \
         .filter(week_count=0) \
         .delete()
 
@@ -55,7 +55,7 @@ def _update_one_week_data(since, till, config):
     """
     Updates data for one week.
     """
-    visits = yclients_extract_and_transform_visits(since, till, config)
+    visits = extract_and_transform_visits(since, till, config)
     _load_visits(since, till, config.user.id, visits)
 
 
@@ -63,5 +63,8 @@ def update(config):
     """
     Updates data for the user.
     """
-    tuple(_update_one_week_data(*week, config.user.id) \
-        for week in get_weeks(since=config.last_update))
+    now = timezone.now()
+    weeks = get_weeks() if config.last_update is None \
+        else get_weeks(since=config.last_update.date())
+    tuple(_update_one_week_data(*week, config) for week in weeks)
+    set_last_update(config.user.id, now)

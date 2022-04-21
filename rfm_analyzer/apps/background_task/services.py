@@ -1,13 +1,13 @@
 from threading import Thread
 from typing import Callable
 
-from .models import BackgroundTask
+from rfm_analyzer.apps.background_task.models import BackgroundTask
 
 
 def try_start_background_task(target: Callable[[None], None], user_id: int) -> bool:
     if BackgroundTask.objects.count() > 0:
         return False
-    Thread(target=_run_target, args=(target, user_id))
+    Thread(target=_run_target, args=(target, user_id)).start()
     return True
 
 

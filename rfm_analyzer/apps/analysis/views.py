@@ -1,12 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponseNotFound
 from django.shortcuts import render
+from django.utils import timezone
 
 from rfm_analyzer.apps.background_task.services import try_start_background_task
 from rfm_analyzer.apps.yclients.services import get_last_update
-
-from .forms import DownloadForm
-from .services.update import update as update_data
+from rfm_analyzer.apps.analysis.forms import DownloadForm
+from rfm_analyzer.apps.analysis.services.update import update as update_data
 
 
 @login_required
@@ -14,7 +14,7 @@ def index(request: HttpRequest):
     last_update = get_last_update(request.user.id)
     update_message = 'Обновление еще ни разу не выполнялось' \
         if last_update is None \
-        else f'Последнее обновление {last_update:%d.%m.%y %H:%M}'
+        else f'Последнее обновление {timezone.localtime(last_update):%d.%m.%y %H:%M}'
     return render(request, 'analysis.html',
                   {'update_message': update_message,
                    'download_form': DownloadForm()})
@@ -40,4 +40,3 @@ def download(request):
     form = DownloadForm(request.POST)
     if not form.is_valid():
         return render(request, 'analysis.html', {'download_form': form})
-
