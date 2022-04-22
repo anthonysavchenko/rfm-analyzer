@@ -1,3 +1,4 @@
+from calendar import week
 from os import getenv
 from datetime import datetime, timedelta
 
@@ -11,6 +12,29 @@ def get_first_monday():
     first_monday_str = getenv('FIRST_MONDAY')
     first_monday_datetime = datetime.strptime(first_monday_str, "%Y-%m-%d")
     return first_monday_datetime.date()
+
+
+def get_week_monday(target_date):
+    """
+    Returns beginning of the week
+    """
+    today = timezone.localdate(timezone.now())
+    yesterday = today - timedelta(days=1)
+    target_date = yesterday if (target_date >= today) else target_date
+    week_number = get_week_number(target_date)
+    return get_first_monday() + timedelta((week_number - 1) * 7) \
+        if week_number > 0 else get_first_monday()
+
+
+def get_week_sunday_or_yesterday(target_date):
+    """
+    Returns end of the week
+    """
+    today = timezone.localdate(timezone.now())
+    yesterday = today - timedelta(days=1)
+    monday = get_week_monday(target_date)
+    sunday = monday + timedelta(days=6)
+    return yesterday if (sunday >= today) else sunday
 
 
 def get_week_number(target_date):
@@ -29,7 +53,7 @@ def get_week_number(target_date):
     return week_number + 1 if delta.days % 7 > 0 else week_number
 
 
-def get_weeks(since=get_first_monday(), till=timezone.now().date()):
+def get_weeks(since=get_first_monday(), till=timezone.localdate(timezone.now())):
     """
     Returns sequence of weeks which includes since_date and till_date.
     Each week is returned in form of monday date and sunday date, exept
@@ -40,7 +64,7 @@ def get_weeks(since=get_first_monday(), till=timezone.now().date()):
     tuple((date, date)): weeks tuple. Empty tuple in case of dates are
     earler than first monday or in case of other incorrect values.
     """
-    today = timezone.now().date()
+    today = timezone.localdate(timezone.now())
     yesterday = today - timedelta(days=1)
     till = yesterday if (till >= today) else till
     since_week_number = get_week_number(since)

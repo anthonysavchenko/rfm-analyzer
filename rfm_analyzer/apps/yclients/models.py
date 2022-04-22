@@ -17,6 +17,8 @@ class Config(models.Model):
     company_id = models.PositiveIntegerField()
     bearer_token = models.CharField(max_length=255)
     user_token = models.CharField(max_length=255)
+    # All data from data providers (YClients) is stored with local dates.
+    # But last_update field is stored with UTC, as it recomended.
     last_update = models.DateTimeField(null=True)
 
     def __str__(self) -> str:

@@ -65,6 +65,6 @@ def update(config):
     """
     now = timezone.now()
     weeks = get_weeks() if config.last_update is None \
-        else get_weeks(since=config.last_update.date())
+        else get_weeks(timezone.localdate(since=config.last_update))
     tuple(_update_one_week_data(*week, config) for week in weeks)
     set_last_update(config.user.id, now)

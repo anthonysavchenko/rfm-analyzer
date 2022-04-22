@@ -9,6 +9,8 @@ class Customer(models.Model):
 
 class Week(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    # All data from data providers (YClients) is stored with local dates.
+    # But last_update field is stored with UTC, as it recomended.
     since = models.DateField()
     till = models.DateField()
     visits = models.PositiveIntegerField(default=0)
