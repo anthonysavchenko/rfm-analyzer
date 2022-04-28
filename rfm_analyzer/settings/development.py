@@ -17,6 +17,14 @@ INSTALLED_APPS += ['debug_toolbar']
 
 MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
 
+DATABASES['default'].update({
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': 'rfm_analyzer',
+    'HOST': 'localhost',
+    'USER': getenv('DB_USERNAME'),
+    'PASSWORD': getenv('DB_PASSWORD')
+})
+
 INTERNAL_IPS = [
     "127.0.0.1"
 ]
