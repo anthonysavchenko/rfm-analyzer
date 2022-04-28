@@ -16,8 +16,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
-TEMPLATES_DIR = ROOT_DIR / 'templates/'
-STATIC_DIR = ROOT_DIR / 'static/'
+PROJECT_TEMPLATES_DIR = ROOT_DIR / 'templates/'
+PROJECT_STATIC_DIR = ROOT_DIR / 'assets/'
+DEPLOY_STATIC_DIR = ROOT_DIR / 'static/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'rfm_analyzer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [PROJECT_TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,8 +126,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = DEPLOY_STATIC_DIR
+
 STATICFILES_DIRS = [
-    ROOT_DIR / 'static/',
+    PROJECT_STATIC_DIR,
 ]
 
 # Default primary key field type
