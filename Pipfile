@@ -7,9 +7,9 @@ name = "pypi"
 requests = "*"
 ratelimit = "*"
 xlsxwriter = "*"
-mysqlclient = "*"
 django = "*"
 django-debug-toolbar = "*"
+psycopg2 = "*"
 
 [dev-packages]
 pylint = "*"

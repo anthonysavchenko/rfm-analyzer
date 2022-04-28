@@ -29,10 +29,16 @@ def _get_query(since_monday, till_monday, user_id):
             t1.weeks_since_last_pay, \
             t1.payed_weeks, \
             t1.payed_total, \
-            ROUND( \
-                CAST( \
-                    (t1.weeks_since_first_pay - t1.weeks_since_last_pay) \
-                        AS REAL) / (payed_weeks - 1), 2) AS ntc, \
+            CASE \
+                WHEN \
+                    payed_weeks <= 1 \
+                THEN \
+                    0 \
+                ELSE \
+                    ROUND(CAST( \
+                        (t1.weeks_since_first_pay - t1.weeks_since_last_pay) \
+                            AS NUMERIC) / (payed_weeks - 1), 2)  \
+            END AS ntc, \
             CASE \
                 WHEN \
                     payed_weeks <= 1 \
@@ -41,19 +47,19 @@ def _get_query(since_monday, till_monday, user_id):
                 WHEN \
                     t1.weeks_since_last_pay > ROUND(CAST( \
                         (t1.weeks_since_first_pay - t1.weeks_since_last_pay) \
-                            AS REAL) / (payed_weeks - 1), 2) * 3 \
+                            AS NUMERIC) / (payed_weeks - 1), 2) * 3 \
                 THEN \
                     '4 - Black' \
                 WHEN \
                     t1.weeks_since_last_pay > ROUND(CAST( \
                         (t1.weeks_since_first_pay - t1.weeks_since_last_pay) \
-                            AS REAL) / (payed_weeks - 1), 2) * 2 \
+                            AS NUMERIC) / (payed_weeks - 1), 2) * 2 \
                 THEN \
                     '1 - Red' \
                 WHEN \
                     t1.weeks_since_last_pay > ROUND(CAST( \
                         (t1.weeks_since_first_pay - t1.weeks_since_last_pay) \
-                            AS REAL) / (payed_weeks - 1), 2) \
+                            AS NUMERIC) / (payed_weeks - 1), 2) \
                 THEN \
                     '2 - Yellow' \
                 ELSE \
@@ -64,24 +70,24 @@ def _get_query(since_monday, till_monday, user_id):
                 c.id AS customer_id, \
                 CONCAT( \
                     '+', \
-                    SUBSTR(c.phone, 1, 1), \
+                    SUBSTRING(CAST(c.phone AS VARCHAR) FROM 1 FOR 1), \
                     ' (', \
-                    SUBSTR(c.phone, 2, 3), \
+                    SUBSTRING(CAST(c.phone AS VARCHAR) FROM 2 FOR 3), \
                     ') ', \
-                    SUBSTR(c.phone, 5, 3), \
+                    SUBSTRING(CAST(c.phone AS VARCHAR) FROM 5 FOR 3), \
                     '-', \
-                    SUBSTR(c.phone, 8, 2), \
+                    SUBSTRING(CAST(c.phone AS VARCHAR) FROM 8 FOR 2), \
                     '-', \
-                    SUBSTR(c.phone, 10, 2)) AS Phone, \
+                    SUBSTRING(CAST(c.phone AS VARCHAR) FROM 10 FOR 2)) AS Phone, \
                 c.customer_name AS customer_name, \
                 CAST( \
-                    (TO_DAYS('{till_monday:%Y-%m-%d}') - \
-                        TO_DAYS(MAX(w.since))) / 7 \
-                    AS UNSIGNED) AS weeks_since_last_pay, \
+                    (CAST('{till_monday:%Y-%m-%d}' AS DATE) - \
+                        CAST(MAX(w.since) AS DATE)) / 7 \
+                    AS INTEGER) AS weeks_since_last_pay, \
                 CAST( \
-                    (TO_DAYS('{till_monday:%Y-%m-%d}') - \
-                        TO_DAYS(MIN(w.since))) / 7 \
-                    AS UNSIGNED) AS weeks_since_first_pay, \
+                    (CAST('{till_monday:%Y-%m-%d}' AS DATE) - \
+                        CAST(MIN(w.since) AS DATE)) / 7 \
+                    AS INTEGER) AS weeks_since_first_pay, \
                 COUNT(w.id) AS payed_weeks, \
                 SUM(w.payed) AS payed_total \
             FROM \
@@ -99,5 +105,5 @@ def _get_query(since_monday, till_monday, user_id):
                 c.phone) AS t1 \
         ORDER BY \
             sector, \
-            payed_total DESC;\
+            payed_total DESC; \
     "

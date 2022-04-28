@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'rfm_analyzer.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'rfm_analyzer',
         'HOST': 'localhost',
         'USER': getenv('DB_USERNAME'),
