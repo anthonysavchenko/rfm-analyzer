@@ -13,7 +13,8 @@ def _create_new_week(since, till, phone, customer_name, visits, payed, user_id):
     """
     customer = Customer.objects.get_or_create(
         phone=phone,
-        defaults={'customer_name': customer_name, 'user_id': user_id}
+        user_id=user_id,
+        defaults={'customer_name': customer_name}
     )[0]
     Week.objects.create(
         customer_id=customer.pk,
@@ -24,12 +25,13 @@ def _create_new_week(since, till, phone, customer_name, visits, payed, user_id):
     )
 
 
-def _delete_temporary_data(since):
+def _delete_temporary_data(since, user_id):
     """
     Deletes previously saved data for the week to request it again.
     """
-    Week.objects.filter(since=since).delete()
+    Week.objects.filter(since=since, customer__user_id=user_id).delete()
     Customer.objects \
+        .filter(user_id=user_id) \
         .annotate(week_count=Count('week')) \
         .filter(week_count=0) \
         .delete()
@@ -39,7 +41,7 @@ def _load_visits(since, till, user_id, visits):
     """
     Saves visits (Customers and Weeks) to the database.
     """
-    _delete_temporary_data(since)
+    _delete_temporary_data(since, user_id)
     tuple(_create_new_week(
         since,
         till,

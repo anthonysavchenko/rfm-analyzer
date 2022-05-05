@@ -104,6 +104,7 @@ def _get_query(since_monday, till_monday, user_id):
                 c.customer_name, \
                 c.phone) AS t1 \
         ORDER BY \
-            sector, \
-            payed_total DESC; \
+            sector DESC, \
+            payed_total DESC, \
+            customer_name ASC; \
     "
