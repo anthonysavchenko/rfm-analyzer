@@ -8,8 +8,7 @@ from rfm_analyzer.apps.yclients.models import Config
 class ConfigAdmin(admin.ModelAdmin):
     """ YClients connection configuration """
 
-    list_display = ['user_name', 'user_email', 'last_update', 'company_id',
-                    'bearer_token', 'user_token']
+    list_display = ['user_name', 'user_email', 'company_id', 'last_update']
     form = ConfigAdminForm
 
     def user_name(self, config):
